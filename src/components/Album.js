@@ -14,6 +14,7 @@ class Album extends Component {
       album: album,
       currentSong: album.songs[0],
       currentTime: 0,
+      volume: 0.8,
       duration: album.songs[0].duration,
       isPlaying: false
     };
@@ -89,6 +90,24 @@ class Album extends Component {
     this.setState({ currentTime: newTime });
   }
 
+  handleVolumeChange(e) {
+    const newVolume = e.target.value;
+    this.audioElement.volume = newVolume;
+    this.setState({ volume: newVolume });
+  }
+
+  formatTime(time) {
+    const sec = Math.round(time % 60);
+    const min = Math.floor(time / 60);
+    if (Number.isNaN(sec) || Number.isNaN(min)) {
+      return "-:--"
+    } else if (sec < 10) {
+      return min + ":0" + sec
+    } else {
+      return min + ":" + sec
+    }
+  }
+
   render() {
     return (
       <section className="album">
@@ -111,7 +130,7 @@ class Album extends Component {
               <tr key = {index} className="song" onClick={() => this.handleSongClick(song)}>
                 <td id="song-number">{index + 1}</td>
                 <td id="song-title">{song.title}</td>
-                <td id="song-duration">{song.duration}</td>
+                <td id="song-duration">{this.formatTime(song.duration)}</td>
               </tr>
             )}
           </tbody>
@@ -121,10 +140,13 @@ class Album extends Component {
           currentSong={this.state.currentSong}
           currentTime={this.audioElement.currentTime}
           duration={this.audioElement.duration}
+          volume={this.state.volume}
           handleSongClick={() => this.handleSongClick(this.state.currentSong)}
           handlePrevClick={() => this.handlePrevClick()}
           handleNextClick={() => this.handleNextClick()}
           handleTimeChange={(e) => this.handleTimeChange(e)}
+          handleVolumeChange={(e) => this.handleVolumeChange(e)}
+          formatTime={(t) => this.formatTime(t)}
         />
       </section>
     );
