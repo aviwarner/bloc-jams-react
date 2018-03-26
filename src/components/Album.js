@@ -12,6 +12,7 @@ class Album extends Component {
 
     this.state = {
       album: album,
+      hoveredSong: null,
       currentSong: album.songs[0],
       currentTime: 0,
       volume: 0.8,
@@ -108,33 +109,60 @@ class Album extends Component {
     }
   }
 
+  songNumber(song, index) {
+    if ((song === this.state.currentSong && !this.state.isPlaying) || (song === this.state.hoveredSong && song !== this.state.currentSong)) {
+      return(<span className="icon ion-play text-light"></span>);
+    } else if (song === this.state.currentSong && this.state.isPlaying) {
+      return(<span className="icon ion-pause text-light"></span>);
+    } else {
+      return(index + 1);
+    }
+  }
+
+  songMouseEnter(song) {
+    this.setState({ hoveredSong: song });
+  }
+
+  songMouseLeave(song) {
+    this.setState({ hoveredSong: null });
+  }
+
   render() {
     return (
-      <section className="album">
-        <section id="album-info">
-          <img id="album-cover-art" src={this.state.album.albumCover} alt={this.state.album.title + " cover image"} />
-          <div className="album-details">
-            <h1 id="album-title">{this.state.album.title}</h1>
-            <h2 className="artist">{this.state.album.artist}</h2>
-            <div id="release-info">{this.state.album.releaseInfo}</div>
+      <section className="album container">
+        <section id="album-info container">
+          <div className="row px-3 mb-4">
+            <div className="container col-4">
+              <img id="album-cover-art" src={this.state.album.albumCover} alt={this.state.album.title + " cover image"} className="img-fluid rounded mw-100"/>
+            </div>
+            <div className="album-details float-right col-8 text-light font-weight-light">
+              <h1 id="album-title">{this.state.album.title}</h1>
+              <h2 className="artist">{this.state.album.artist}</h2>
+              <div id="release-info">{this.state.album.releaseInfo}</div>
+            </div>
           </div>
         </section>
-        <table id="song-list">
-          <colgroup>
-            <col id="song-number-column" />
-            <col id="song-title-column" />
-            <col id="song-duration-column" />
-          </colgroup>
-          <tbody>
-            { this.state.album.songs.map( (song, index) =>
-              <tr key = {index} className="song" onClick={() => this.handleSongClick(song)}>
-                <td id="song-number">{index + 1}</td>
-                <td id="song-title">{song.title}</td>
-                <td id="song-duration">{this.formatTime(song.duration)}</td>
+        <section className="container">
+          <table id="song-list" className="table text-light table-hover">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th className="text-left">Title</th>
+                <th className="text-right">Duration</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              { this.state.album.songs.map( (song, index) =>
+                <tr key = {index} className="song" onClick={() => this.handleSongClick(song)} onMouseEnter={() => this.songMouseEnter(song, index)} onMouseLeave={() => this.songMouseLeave(song, index)}>
+                  <td id="song-number">{ this.songNumber(song, index) }</td>
+                  <td id="song-title" className="text-left">{song.title}</td>
+                  <td id="song-duration" className="text-right">{this.formatTime(song.duration)}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
+
         <PlayerBar
           isPlaying={this.state.isPlaying}
           currentSong={this.state.currentSong}
